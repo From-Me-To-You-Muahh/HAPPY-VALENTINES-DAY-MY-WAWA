@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For You 💜</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="bgGlow" aria-hidden="true"></div>
+  <div class="hearts" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <main class="wrap">
+
+    <header class="top">
+      <p class="kicker">Happy Valentine’s Day</p>
+      <h1 class="title">I made this for you 💜</h1>
+      <p class="sub">Press play. Enjoy the show ✨</p>
+    </header>
+
+    <section class="card">
+      <div class="videoFrame">
+        <video id="mainVideo" class="video" controls playsinline preload="metadata">
+          <source src="videos/vid1.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      <div class="actions">
+        <a class="btn primary" href="collage.html">Next: The Collage ✨</a>
+        <button class="btn ghost" id="fsBtn" type="button">Fullscreen</button>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p>Made with love 🤍</p>
+    </footer>
+
+  </main>
+
+  <!-- LIGHTBOX (kept, even if you aren't using tiles right now) -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Image preview">
+      <button class="lightboxClose" id="lbClose" type="button" aria-label="Close">✕</button>
+      <img id="lbImg" alt="Preview" />
+    </div>
+  </div>
+
+  <!-- ANNIVERSARY PASSWORD GATE -->
+  <div class="gate" id="gate" aria-hidden="true">
+    <div class="gateCard" role="dialog" aria-modal="true" aria-label="Access question">
+      <p class="gateTitle">Before you get access… 💜</p>
+      <p class="gateText">Answer one question only one person knows the answer.</p>
+
+      <p class="gateQuestion">When is our anniversary?</p>
+
+      <input class="gateInput" id="gateInput" placeholder="Eg: 10th january" autocomplete="off" />
+      <p class="gateError" id="gateError"></p>
+
+      <div class="gateActions">
+        <button class="btn primary" id="gateBtn" type="button">Unlock ✨</button>
+      </div>
+
+      <p class="tiny">Bonito Flakes...</p>
+    </div>
+  </div>
+
+  <script>
+    // -------------------- PASSWORD GATE (flexible) --------------------
+    const ACCESS_KEY = "valentine_access_granted_v1";
+    const ACCEPTED_DAY = 17;
+
+    // accepts: december/dec and numeric 12
+    const MONTH_ALIASES = ["december", "dec"];
+    const MONTH_NUMBER = 12;
+
+    const gate = document.getElementById("gate");
+    const gateInput = document.getElementById("gateInput");
+    const gateBtn = document.getElementById("gateBtn");
+    const gateError = document.getElementById("gateError");
+
+    function showGate(){
+      gate.classList.add("show");
+      gate.setAttribute("aria-hidden", "false");
+      document.body.classList.add("lockScroll");
+      setTimeout(() => gateInput?.focus(), 50);
+    }
+    function hideGate(){
+      gate.classList.remove("show");
+      gate.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("lockScroll");
+    }
+
+    if (localStorage.getItem(ACCESS_KEY) !== "true") showGate();
+
+    function cleanText(s){
+      return (s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[,]/g, " ")
+        .replace(/\s+/g, " ");
+    }
+
+    function stripOrdinal(dayStr){
+      return dayStr.replace(/(st|nd|rd|th)$/i, "");
+    }
+
+    function isCorrectAnniversary(input){
+      const s = cleanText(input);
+      if (!s) return false;
+
+      // (1) Numeric formats: 17/12, 17-12, 17.12, 17/12/2023 (year ignored)
+      const m = s.match(/^(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{2,4}))?$/);
+      if (m) {
+        const day = parseInt(m[1], 10);
+        const month = parseInt(m[2], 10);
+        return day === ACCEPTED_DAY && month === MONTH_NUMBER;
+      }
+
+      // (2) Text formats: "17 dec", "17th december", "december 17", "dec 17"
+      const tokens = s.split(" ").filter(Boolean);
+
+      let dayFound = false;
+      let monthFound = false;
+
+      for (const t of tokens) {
+        const maybeNum = stripOrdinal(t);
+        if (/^\d{1,2}$/.test(maybeNum)) {
+          if (parseInt(maybeNum, 10) === ACCEPTED_DAY) dayFound = true;
+        }
+        if (MONTH_ALIASES.includes(t)) monthFound = true;
+      }
+
+      // (3) Compact formats: "17dec", "dec17", "17december"
+      if (!dayFound || !monthFound) {
+        const compact = tokens.join("");
+        if (compact.includes("december") || compact.includes("dec")) monthFound = true;
+
+        const nums = compact.match(/\d{1,2}/g);
+        if (nums && nums.map(n => parseInt(n, 10)).includes(ACCEPTED_DAY)) dayFound = true;
+      }
+
+      return dayFound && monthFound;
+    }
+
+    function tryUnlock(){
+      gateError.textContent = "";
+
+      if (isCorrectAnniversary(gateInput.value)) {
+        localStorage.setItem(ACCESS_KEY, "true");
+        hideGate();
+      } else {
+        gateError.textContent = "kelp!😭";
+        gateInput.focus();
+        gateInput.select();
+      }
+    }
+
+    gateBtn.addEventListener("click", tryUnlock);
+    gateInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryUnlock();
+    });
+
+    // -------------------- YOUR EXISTING VIDEO FULLSCREEN --------------------
+    const vid = document.getElementById("mainVideo");
+    const fsBtn = document.getElementById("fsBtn");
+    fsBtn.addEventListener("click", () => {
+      if (!vid) return;
+      if (vid.requestFullscreen) vid.requestFullscreen();
+      else if (vid.webkitRequestFullscreen) vid.webkitRequestFullscreen();
+    });
+
+    // -------------------- LIGHTBOX (only works if .tile elements exist) --------------------
+    const lightbox = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lbImg");
+    const lbClose = document.getElementById("lbClose");
+
+    function openLightbox(src, alt){
+      lbImg.src = src;
+      lbImg.alt = alt || "Preview";
+      lightbox.classList.add("show");
+      lightbox.setAttribute("aria-hidden", "false");
+    }
+
+    function closeLightbox(){
+      lightbox.classList.remove("show");
+      lightbox.setAttribute("aria-hidden", "true");
+      lbImg.src = "";
+    }
+
+    document.querySelectorAll(".tile").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const src = btn.getAttribute("data-full");
+        const img = btn.querySelector("img");
+        openLightbox(src, img ? img.alt : "Preview");
+      });
+    });
+
+    lbClose.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", (e) => { if(e.target === lightbox) closeLightbox(); });
+    document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeLightbox(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Us 💜</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="bgGlow" aria-hidden="true"></div>
+  <div class="hearts" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <main class="wrap">
+
+    <header class="top">
+      <p class="kicker">Memories</p>
+      <h1 class="title">Us, in moments 💜</h1>
+      <p class="sub">When you’re done… tap the button 🥺</p>
+    </header>
+
+    <!-- CLICKABLE GALLERY -->
+    <section class="gallery" aria-label="Favorite anime and JoJo">
+      <button class="tile anime" type="button" data-full="assets/images/mha.png" aria-label="Open My Hero Academia image">
+        <img src="assets/images/mha.png" alt="My Hero Academia" onerror="this.closest('button').style.display='none'">
+      </button>
+
+      <button class="tile anime" type="button" data-full="assets/images/steinsgate.png" aria-label="Open Steins;Gate image">
+        <img src="assets/images/steinsgate.png" alt="Steins;Gate" onerror="this.closest('button').style.display='none'">
+      </button>
+
+      <button class="tile anime" type="button" data-full="assets/images/blackclover.png" aria-label="Open Black Clover image">
+        <img src="assets/images/blackclover.png" alt="Black Clover" onerror="this.closest('button').style.display='none'">
+      </button>
+
+      <button class="tile jojo josuke" type="button" data-full="assets/images/josuke.png" aria-label="Open Josuke image">
+        <img src="assets/images/josuke.png" alt="Josuke" onerror="this.closest('button').style.display='none'">
+        <!-- <span class="cap">Josuke 💎</span> -->
+      </button>
+
+      <button class="tile jojo kira" type="button" data-full="assets/images/kira.png" aria-label="Open Kira image">
+        <img src="assets/images/kira.png" alt="Kira" onerror="this.closest('button').style.display='none'">
+        <!-- <span class="cap">Kira 🖐️</span> -->
+      </button>
+
+      <button class="tile jojo bucciarati" type="button" data-full="assets/images/bucciarati.png" aria-label="Open Bucciarati image">
+        <img src="assets/images/bucciarati.png" alt="Bucciarati" onerror="this.closest('button').style.display='none'">
+        <!-- <span class="cap">Bucciarati 🧷</span> -->
+      </button>
+    </section>
+
+    <section class="card">
+      <div class="videoFrame">
+        <video class="video" controls playsinline preload="metadata">
+          <source src="videos/vid2.mp4" type="video/mp4" />
+          <!-- Your browser doesn’t support video playback. -->
+        </video>
+      </div>
+
+      <div class="actions">
+        <a class="btn ghost" href="index.html">← Back</a>
+        <button class="btn primary" id="askBtn" type="button">One last thing 💝</button>
+      </div>
+    </section>
+
+    <!-- VALENTINE POPUP -->
+    <div class="modal" id="valentineModal" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true">
+        <p class="modalTitle">salmon salmon…</p>
+        <p class="modalText">Will you be my Valentine? 💘</p>
+
+        <div class="modalActions">
+          <button class="btn primary" id="yesBtn" type="button">Yes 💞</button>
+          <button class="btn ghost" id="noBtn" type="button">No 🙄</button>
+        </div>
+
+        <p class="tiny">💜🍷🤍🤎</p>
+      </div>
+    </div>
+
+    <!-- “SHE SAID YES” POPUP -->
+    <div class="modal" id="yesModal" aria-hidden="true">
+      <div class="modalCard" role="dialog" aria-modal="true">
+        <p class="modalTitle">🎉🎉🎉</p>
+        <p class="modalText" style="font-size:1.6rem;">SHE SAID YES 💍💜</p>
+
+        <div class="modalActions">
+          <button class="btn primary" id="doneBtn" type="button">So you lof meh?🥹</button>
+        </div>
+
+        <p class="tiny">Smoooochhh 😭</p>
+      </div>
+    </div>
+
+    <footer class="foot">
+      <p>Always you 🤍</p>
+    </footer>
+
+  </main>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Image preview">
+      <button class="lightboxClose" id="lbClose" type="button" aria-label="Close">✕</button>
+      <img id="lbImg" alt="Preview" />
+    </div>
+  </div>
+
+ <script>
+  // ---------- ELEMENTS ----------
+  const vModal = document.getElementById("valentineModal");
+  const yModal = document.getElementById("yesModal");
+  const askBtn = document.getElementById("askBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn  = document.getElementById("noBtn");
+  const doneBtn = document.getElementById("doneBtn");
+
+  // ---------- MODAL HELPERS ----------
+  function openModal(el){
+    el.classList.add("show");
+    el.setAttribute("aria-hidden","false");
+  }
+  function closeModal(el){
+    el.classList.remove("show");
+    el.setAttribute("aria-hidden","true");
+  }
+
+  askBtn.addEventListener("click", () => openModal(vModal));
+
+  function sheSaidYes(){
+    closeModal(vModal);
+    openModal(yModal);
+
+    document.body.classList.add("celebrate");
+    setTimeout(() => document.body.classList.remove("celebrate"), 1400);
+  }
+
+  yesBtn.addEventListener("click", sheSaidYes);
+  noBtn.addEventListener("click", sheSaidYes); // mobile fallback
+
+  doneBtn.addEventListener("click", () => closeModal(yModal));
+
+  // ---------- RUNAWAY NO + YES REPLACEMENT ----------
+  let swapped = false;
+
+  noBtn.addEventListener("mouseenter", () => {
+    if (swapped) return;
+
+    const container = noBtn.parentElement;
+
+    // Move NO away
+    noBtn.style.position = "absolute";
+    noBtn.style.transform = "translate(-120px, -80px) rotate(-12deg)";
+    noBtn.style.opacity = "0";
+    noBtn.style.transition = "all 0.25s ease";
+
+    // Clone YES button
+    const yesClone = yesBtn.cloneNode(true);
+    yesClone.textContent = "Yes 💞";
+    yesClone.style.position = "absolute";
+    yesClone.style.left = noBtn.offsetLeft + "px";
+    yesClone.style.top  = noBtn.offsetTop + "px";
+    yesClone.style.opacity = "0";
+    yesClone.style.transform = "scale(0.8)";
+    yesClone.style.transition = "all 0.25s ease";
+    yesClone.addEventListener("click", sheSaidYes);
+
+    container.appendChild(yesClone);
+
+    // Animate YES in
+    requestAnimationFrame(() => {
+      yesClone.style.opacity = "1";
+      yesClone.style.transform = "scale(1)";
+    });
+
+    swapped = true;
+  });
+
+  // ---------- RESET WHEN MODAL CLOSES ----------
+  vModal.addEventListener("transitionend", () => {
+    if (!vModal.classList.contains("show")) {
+      swapped = false;
+      noBtn.style = "";
+      document.querySelectorAll(".modalActions .btn.primary").forEach((btn, i) => {
+        if (i > 0) btn.remove();
+      });
+    }
+  });
+
+  // ---------- ESC KEY ----------
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape"){
+      if(yModal.classList.contains("show")) closeModal(yModal);
+      if(vModal.classList.contains("show")) closeModal(vModal);
+    }
+  });
+</script>
+
+</body>
+</html>
